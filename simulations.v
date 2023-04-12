@@ -2,76 +2,85 @@
 // 0, I, Q-1, Q+1
 `timescale 1ns/1ps
 
+//PART 1
+
 module Register_Test();
     reg En;
     reg CLK;
     reg [1:0] FunSel;
     reg [7:0] I;
-
+    
     wire [7:0] Q;
+
+    reg [1:0] e = 1'b0;
+    reg [1:0] f = 2'b00;
+     
+    reg [7:0] i = 8'b00000000;
      
     n_bitRegister #(.N(8)) R1(.E(En),.CLK(CLK), .FunSel(FunSel), .I(I), .Q(Q));
     always #1 CLK = ~CLK;
     always #100 En = ~En;
     
     initial begin
-        I = 8'b10101010;
-        En = 1;
-        CLK = 0;
-
-        forever
-        begin             
-            #5
-            for(FunSel = 0; FunSel <= 3'b11; FunSel = FunSel+1) 
-            begin
-                #10
-                $display("FunSel:%0d ", FunSel);
-                $display("FunSel:%0d ", Q);
-            end
-                $finish;  
+    I = 8'b10101010;
+    En = 1;
+    CLK = 0;   
+    forever
+        begin 
+        #5
+        for(f = 0; f<3'b100; f = f+1) begin
+        #10
+        FunSel = f;
+        $display("FunSel1:%0d ", f );
+        end
+        $finish;  
         end
     end
-     
-     
-     
-endmodule     
-
-module RegFile_Test();
-    reg CLK, LH, En, [1:0] FunSel, [7:0] I;
-    wire [15:0] Output;
-    integer a,j,k;
-    RegFile file(.OutASel(OutASelect),.OutBSel(OutBSelect),.FunSel(FunSelect),.RegSel(RegisterSelect),.I(Input),.CLK(CLK),.OutA(OutputA),.OutB(OutputB));
-    
-    always #1 CLK = ~CLK;
-    always #100 En = ~En;
-
-     initial begin
-     #5
-     Input = 8'b10101010;
-     CLK = 0;
-     for(a=0;a<16;a=a+1) begin
-        RegisterSelect = a;
-        $display("RegisterSelect: %0d",a);
-        for(j=0;j<4;j=j+1) begin
-            #10
-            FunSelect = j;
-            $display("FunSelect: %0d ", j);
-            for(k = 0; k < 4; k = k+1)begin
-                #5
-                OutASelect = k;
-                OutBSelect = k;
-                $display("OutA and OutB Select: %0d",k);
-            end
-        end
-     end
-
-          
-    end
-     
-     
-     
+  
 endmodule
 
+//PART 2
+
+//Part 2a
+
+module IR_Test();
+    reg CLK;
+    reg E;
+    reg LH;
+
+    reg [1:0] FunSelect;
+    reg [7:0] Input;
+    
+    wire [15:0] Out;
+    
+    integer i;
+    
+    IR Ir(.LH(LH),.En(E),.FunSel(FunSelect),.I(Input),.CLK(CLK), .IRout(Out));
+    always #5 CLK = ~CLK;
+    always #50 E = ~E;
+    always #100 LH = ~LH;
+    
+    initial begin
+         Input = 8'b10101010;
+         E = 1;
+         CLK = 0;
+         LH=0;
+         forever begin
+            #5
+            for(i=0; i < 4; i = i + 1) begin
+                #10
+                FunSelect = i;
+                $display("FunSelect: %0d",i);
+            end
+         end    
+    end
+endmodule
+
+//Part 2b
+
+module RegFile_Test();
+  
+endmodule
 
 module ARF_Test();
     reg CLK;
@@ -119,40 +128,6 @@ module ARF_Test();
     end
 endmodule    
 
-
-module IR_Test();
-    reg CLK;
-    reg E;
-    reg LH;
-
-    reg [1:0] FunSelect;
-    reg [7:0] Input;
-    
-    wire [15:0] Out;
-    
-    integer i;
-    
-    IR Ir(.LH(LH),.En(E),.FunSel(FunSelect),.I(Input),.CLK(CLK), .IRout(Out));
-    always #5 CLK = ~CLK;
-    always #50 E = ~E;
-    always #100 LH = ~LH;
-    
-    initial begin
-         Input = 8'b10101010; //for low input
-         E = 1;
-         CLK = 0;
-         LH=0;
-         forever begin
-            #5
-            for(i=0; i < 4; i = i + 1) begin
-                #10
-                FunSelect = i;
-                $display("FunSelect: %0d",i);
-            end
-         end    
-    end
-
-endmodule 
 
 module ALU_test();
     
