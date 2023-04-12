@@ -1,4 +1,24 @@
 `timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 12.04.2023 18:27:38
+// Design Name: 
+// Module Name: modules
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
 
 // PART 1
 
@@ -375,32 +395,10 @@ module Memory(
 endmodule
 
 
-module ALUSystem
-( input
- [2:0] RF_O1Sel, 
- [2:0] RF_O2Sel, 
- [1:0] RF_FunSel,
- [3:0] RF_RegSel,
- [3:0] RF_TSel,
- 
- [3:0] ALU_FunSel,
- 
- [1:0] ARF_OutASel, 
- [1:0] ARF_OutBSel, 
- [1:0] ARF_FunSel,
- [2:0] ARF_RegSel,
- 
- IR_LH,
- IR_Enable,
- [1:0] IR_Funsel,
- 
- Mem_WR,
- Mem_CS,
- 
- [1:0] MuxSelA,
- [1:0] MuxSelB,
- MuxCSel,
- Clock
+module ALU_System
+( input [2:0] RF_O1Sel, [2:0] RF_O2Sel, [1:0] RF_FunSel, [3:0] RF_RegSel, [3:0] RF_TSel, [3:0] ALU_FunSel, [1:0] ARF_OutASel,
+  input [1:0] ARF_OutBSel, [1:0] ARF_FunSel, [3:0] ARF_RegSel, IR_LH, IR_Enable, [1:0] IR_Funsel, Mem_WR, Mem_CS,
+  input [1:0] MuxSelA, [1:0] MuxSelB, MuxCSel, Clock
 );
     wire [7:0] ALUOut;
     wire [7:0] Address;
