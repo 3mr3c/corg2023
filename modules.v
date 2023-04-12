@@ -267,7 +267,11 @@ module ALU (
             enable_o <= 1;
         end
         4'b0110: begin
-            ALU_result <= A - B;
+            if(A > B) begin
+            ALU_result <= A;
+            end else begin
+            ALU_result <= B;
+            end
             enable_o <= 1;
         end
         4'b0111: begin
@@ -279,39 +283,30 @@ module ALU (
             enable_o <= 0;
         end
         4'b1001: begin
-            ALU_result <= A ^ B;
+            ALU_result <= A ~& B;
             enable_o <= 0;
         end
         4'b1010: begin
+            ALU_result <= A ^ B;
+            enable_o <= 0;
+        end
+        4'b1011: begin
             OutFlag[2] <= A[7];
             ALU_result <= A << 1;
             enable_o <= 0;
         end
-        4'b1011: begin
+        4'b1100: begin
             OutFlag[2] <= A[0];
             ALU_result <= A >> 1;
             enable_o <= 0;
         end
-        4'b1100: begin
+        4'b1101: begin
             ALU_result <= A <<< 1;
             enable_o <= 0;
         end
-        4'b1101: begin
+        4'b1110: begin
             ALU_result <= A >>> 1;
             enable_o <= 1;
-        end
-        4'b1110: begin
-            OutFlag[2] <= A[7];
-            ALU_result[0] <= OutFlag[2];
-            ALU_result[1] <= A[0];
-            ALU_result[2] <= A[1];
-            ALU_result[3] <= A[2];
-            ALU_result[4] <= A[3];
-            ALU_result[5] <= A[4];
-            ALU_result[6] <= A[5];
-            ALU_result[7] <= A[6];
-            enable_o = 0;
-            //ALU_result = {A[6:0], A[7]};
         end
         4'b1111: begin
             OutFlag[2] <= A[0];
