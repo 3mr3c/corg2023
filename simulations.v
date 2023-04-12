@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1ns / 1ps
 
 //PART 1
 
@@ -97,7 +97,7 @@ module RegFile_Test();
      Input = 8'b10101010;
      CLK = 0;
      for(a=0;a<16;a=a+1) begin
-        RegisterSelect = a;
+        RSelect = a;
         $display("RegisterSelect: %0d",a);
         for(j=0;j<4;j=j+1) begin
             #10
@@ -105,8 +105,8 @@ module RegFile_Test();
             $display("FunSelect: %0d ", j);
             for(k = 0; k < 4; k = k+1)begin
                 #5
-                OutASelect = k;
-                OutBSelect = k;
+                Out1Select = k;
+                Out2Select = k;
                 $display("Out1 and Out2 Select: %0d",k);
             end
         end
@@ -117,8 +117,14 @@ endmodule
 //Part 2c
 
 module ARF_Test();
-    reg CLK, [1:0] OutASel, [1:0] OutBSel, [1:0] FunSel, [3:0] RegSel, [7:0] I;
-    wire [7:0] OutA, [7:0] OutB;
+    reg CLK;
+    reg [1:0] OutASel;
+    reg [1:0] OutBSel; 
+    reg [1:0] FunSel; 
+    reg [3:0] RegSel; 
+    reg [7:0] I;
+    wire [7:0] OutA;
+    wire [7:0] OutB;
 
     integer a, j, k;
     ARF arf(.CLK(CLK), .OutASel(OutASel), .OutBSel(OutBSel), .FunSel(FunSel), .RegSel(RegSel), .I(I), .OutA(OutA), .OutB(OutB));
@@ -127,7 +133,7 @@ module ARF_Test();
     initial 
     begin
         #5
-        Input = 8'b10101010;
+        I = 8'b10101010;
         CLK = 0;
         for(a=0; a<8; a=a+1)
         begin
@@ -135,7 +141,7 @@ module ARF_Test();
             $display("RegisterSelect: %0d", a);
             for(j=0; j < 4; j = j+1) begin
                 #10
-                FunSelect = j;
+                FunSel = j;
                 $display("FunSel: %0d ", j);
                 for(k = 0; k < 4; k = k+1)begin
                     #5
@@ -152,8 +158,12 @@ endmodule
 //PART 3
 
 module ALU_test();
-    reg CLK, [3:0] FunSel, [7:0] A, [7:0] B;
-    wire [7:0] OutALU, [3:0] OutFlag = 4'b0;
+    reg CLK;
+    reg [3:0] FunSel;
+    reg [7:0] A;
+    reg [7:0] B;
+    wire [7:0] OutALU;
+    wire [3:0] OutFlag = 4'b0;
 
     integer a, b, j, k;
     ALU alu(.CLK(CLK), .FunSel(FunSel), .A(A), .B(B), .OutALU(OutALU), .OutFlag(OutFlag));
@@ -178,7 +188,7 @@ module ALU_test();
                 for(j=0; j < 4; j = j+1) 
                 begin
                     #10
-                    FunSelect = j;
+                    FunSel = j;
                     $display("FunSel: %0d ", j);
                 end
             end
