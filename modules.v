@@ -1,4 +1,4 @@
-// Part 1
+// PART 1
 
 module n_bitRegister #(parameter N = 8) (
     input CLK, E, [1:0] FunSel, [N-1:0] I,
@@ -34,7 +34,7 @@ module n_bitRegister #(parameter N = 8) (
     
 endmodule
 
-//Part 2
+//PART 2
 
 //Part 2a
 
@@ -227,7 +227,7 @@ module ARF (
      end    
 endmodule
 
-//Part 3
+//PART 3
 
 module ALU (
     input CLK, [3:0] FunSel, input [7:0] A, [7:0] B, 
@@ -345,6 +345,32 @@ module ALU (
             
 endmodule
 
+//PART 4
+
+module Memory(
+    input wire[7:0] address,
+    input wire[7:0] data,
+    input wire wr, //Read = 0, Write = 1
+    input wire cs, //Chip is enable when cs = 0
+    input wire clock,
+    output reg[7:0] o // Output
+);
+    //Declaration o�f the RAM Area
+    reg[7:0] RAM_DATA[0:255];
+    //Read Ram data from the file
+    initial $readmemh("RAM.mem", RAM_DATA);
+    //Read the selected data from RAM
+    always @(*) begin
+        o = ~wr && ~cs ? RAM_DATA[address] : 8'hZ;
+    end
+    
+    //Write the data to RAM
+    always @(posedge clock) begin
+        if (wr && ~cs) begin
+            RAM_DATA[address] <= data; 
+        end
+    end
+endmodule
 
 
 
