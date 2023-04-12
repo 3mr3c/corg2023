@@ -373,6 +373,103 @@ module Memory(
 endmodule
 
 
+module ALUSystem
+( input
+ [2:0] RF_O1Sel, 
+ [2:0] RF_O2Sel, 
+ [1:0] RF_FunSel,
+ [3:0] RF_RegSel,
+ [3:0] RF_TSel,
+ 
+ [3:0] ALU_FunSel,
+ 
+ [1:0] ARF_OutASel, 
+ [1:0] ARF_OutBSel, 
+ [1:0] ARF_FunSel,
+ [2:0] ARF_RegSel,
+ 
+ IR_LH,
+ IR_Enable,
+ [1:0] IR_Funsel,
+ 
+ Mem_WR,
+ Mem_CS,
+ 
+ [1:0] MuxSelA,
+ [1:0] MuxSelB,
+ MuxCSel,
+ Clock
+);
+    wire [7:0] ALUOut;
+    wire [7:0] Address;
+    wire [7:0] MemoryOut;
+    wire [7:0] ARF_AOut;
+    reg [7:0] MuxBOut;
+    wire [7:0] IR_Out_LSB;
+    Memory Mem(.address(Address), .data(ALUOut), .wr(Mem_WR), .cs(Mem_CS), .clock(Clock), .o(MemoryOut));
+    //address, data ve output 8 bit gerisi tek bit
+
+    ARF arf1(.OutASel(ARF_OutASel), .OutBSel(ARF_OutBSel), .FunSel(ARF_FunSel), .RegSel(ARF_RegSel), .I(MuxBOut) , .OutA(ARF_AOut), .OutB(Address), .CLK(Clock));
+
+    always @(MuxBSel) begin
+        case (MuxBSel)
+            2'b00: begin
+                MuxBOut <= ALUOut;
+            end
+            2'b01: begin
+                MuxBOut <= MemoryOut;
+            end
+            2'b10: begin
+                MuxBOut <= IR_Out_LSB;
+            end
+            2'b11: begin
+                MuxBOut = ARF_AOut;
+            end
+        endcase
+    end
+
+    wire [15:0] IROut;
+
+    assign IR_Out_LSB = IROut[7:0];
+
+    IR ir1(.LH(IR_LH), .En(IR_Enable), .FunSel(IR_Funsel), .IRout(IROut), .CLK(Clock));
+
+    reg [7:0] MuxAOut;
+
+    always @(MuxASel) begin
+        case (MuxASel)
+            2'b00: begin
+                MuxAOut = ALUOut;
+            end
+            2'b01: begin
+                MuxAOut = MemoryOut;
+            end
+            2'b10: begin
+                MuxAOut = IR_Out_LSB;
+            end
+            2'b11: begin
+                MuxAOut = ARF_AOut;
+            end
+        endcase
+    end
+
+    wire [7:0] Out1, Out2;
+    RegFile rf1(.O1Sel(RF_O1Sel), .O2Sel(RF_O2Sel), .FunSel(RF_FunSel), .RSel(RF_RegSel), .TSel(RF_TSel),  .I(MuxAOut), .O1(Out1), .O2(Out2),.CLK(Clock));
+
+    reg [7:0] MuxCOut;
+    always @(MuxCSel) begin
+        if (MuxCSel) begin
+            MuxCOut = Out1;
+        end else begin
+            MuxCOut = ARF_AOut;
+        end
+
+    end
+    wire [3:0] ALUOutFlag;
+    ALU alu1(.FunSel(ALU_FunSel), .A(MuxCOut), .B(Out2), .OutALU(ALUOut), .OutFlag(ALUOutFlag), .CLK(Clock));
+
+endmodule
+
 
 
 
