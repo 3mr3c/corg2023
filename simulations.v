@@ -1,5 +1,3 @@
-// Q-1, Q+1, I, 0
-// 0, I, Q-1, Q+1
 `timescale 1ns/1ps
 
 //PART 1
@@ -79,36 +77,26 @@ endmodule
 //Part 2b
 
 module RegFile_Test();
-  
-endmodule
-
-module ARF_Test();
     reg CLK;
     reg [1:0] FunSelect;
     reg [7:0] Input;
-    reg [1:0] OutCSelect;
-    reg [1:0] OutDSelect;
-    reg [2:0] RegisterSelect;
+    reg [2:0] Out1Select;
+    reg [2:0] Out2Select;
+    reg [3:0] RSelect;
+    reg [3:0] TSelect;
     
-    wire [7:0] OutputC;
-    wire [7:0] OutputD;
+    wire [7:0] Output1;
+    wire [7:0] Output2;
     
-     //integer e, f, i;    
-     //reg [3:0] r = 4'b0000;
-     //reg [1:0] f = 2'b00;
-     
-     //reg [7:0] i = 8'b00000000;
-     //reg [1:0] o = 2'b00;
     integer a,j,k;
-
-    ARF file(.OutCSel(OutCSelect),.OutDSel(OutDSelect),.FunSel(FunSelect),.RegSel(RegisterSelect),.I(Input),.CLK(CLK),.OutC(OutputC),.OutD(OutputD));
+    RegFile file(.O1Sel(Out1Select),.O2Sel(Out2Select),.FunSel(FunSelect),.RegSel(RSelect),.TSel(TSelect),.I(Input),.CLK(CLK),.O1(Output1),.O2(Output2));
     always #1 CLK = ~CLK;
     
      initial begin
      #5
      Input = 8'b10101010;
      CLK = 0;
-     for(a=0;a<8;a=a+1) begin
+     for(a=0;a<16;a=a+1) begin
         RegisterSelect = a;
         $display("RegisterSelect: %0d",a);
         for(j=0;j<4;j=j+1) begin
@@ -117,71 +105,39 @@ module ARF_Test();
             $display("FunSelect: %0d ", j);
             for(k = 0; k < 4; k = k+1)begin
                 #5
-                OutCSelect = k;
-                OutDSelect = k;
-                $display("OutA and OutB Select: %0d",k);
+                OutASelect = k;
+                OutBSelect = k;
+                $display("Out1 and Out2 Select: %0d",k);
             end
         end
+     end     
      end
+endmodule
 
-          
-    end
-endmodule    
+//Part 2c
 
+module ARF_Test();
+  
+endmodule
+
+//PART 3
 
 module ALU_test();
-    
-    reg CLK;
-    reg[3:0] FunSelect;
-    reg[7:0] A;
-    reg[7:0] B;
+  
+endmodule
 
-    
-    wire[7:0] OutALU;
-    wire[3:0] OutFlag;
-    
-    integer i;
-    
-    ALU test(.CLK(CLK),.FunSel(FunSelect),.A(A),.B(B), .OutFlag(OutFlag), .OutALU(OutALU));
-    always #5 CLK = ~CLK;
-    initial begin
-        FunSelect = 4'b0000;
-        A = 0;
-        B = 0;
-        CLK = 1;
-        
-        #170
-        A = 8'b10101011;
-        B = 8'b10110111;
-        
-        #170
-        A = 8'b11111111;
-        B = 8'b11111111;
-         
-    end
-    
-    always begin
-                #5
-                for(i=0; i < 16; i = i + 1) begin
-                    #10
-                    FunSelect = FunSelect + 1;
-                    $display("FunSelect: %0d",FunSelect);
-                end
-            end   
-    
-endmodule    
-    
 module Project1Test();
     //Input Registers of ALUSystem
-    reg[1:0] RF_OutASel; 
-    reg[1:0] RF_OutBSel; 
+    reg[2:0] RF_O1Sel; 
+    reg[2:0] RF_O2Sel; 
     reg[1:0] RF_FunSel;
-    reg[3:0] RF_RegSel;
+    reg[3:0] RF_RSel;
+    reg[3:0] RF_TSel;
     reg[3:0] ALU_FunSel;
-    reg[1:0] ARF_OutCSel; 
-    reg[1:0] ARF_OutDSel; 
+    reg[1:0] ARF_OutASel; 
+    reg[1:0] ARF_OutBSel; 
     reg[1:0] ARF_FunSel;
-    reg[2:0] ARF_RegSel;
+    reg[3:0] ARF_RSel;
     reg      IR_LH;
     reg      IR_Enable;
     reg[1:0]      IR_Funsel;
@@ -193,16 +149,17 @@ module Project1Test();
     reg      Clock;
     
     //Test Bench Connection of ALU System
-    ALUSystem _ALUSystem(
-    .RF_OutASel(RF_OutASel), 
-    .RF_OutBSel(RF_OutBSel), 
+    ALU_System _ALUSystem(
+    .RF_OutASel(RF_O1Sel), 
+    .RF_OutBSel(RF_O2Sel), 
     .RF_FunSel(RF_FunSel),
-    .RF_RegSel(RF_RegSel),
+    .RF_RSel(RF_RSel),
+    .RF_TSel(RF_TSel),
     .ALU_FunSel(ALU_FunSel),
-    .ARF_OutCSel(ARF_OutCSel), 
-    .ARF_OutDSel(ARF_OutDSel), 
+    .ARF_OutCSel(ARF_OutASel), 
+    .ARF_OutDSel(ARF_OutBSel), 
     .ARF_FunSel(ARF_FunSel),
-    .ARF_RegSel(ARF_RegSel),
+    .ARF_RegSel(ARF_RSel),
     .IR_LH(IR_LH),
     .IR_Enable(IR_Enable),
     .IR_Funsel(IR_Funsel),
@@ -215,10 +172,12 @@ module Project1Test();
     );
     
     //Test Vector Variables
-    reg [31:0] VectorNum, Errors, TotalLine; 
-    reg [34:0] TestVectors[10000:0];
+    reg [41:0] VectorNum, Errors, TotalLine; 
+    reg [41:0] TestVectors[3:0];
     reg Reset, Operation;
-    
+    initial begin
+        Reset = 0;
+    end
     //Clock Signal Generation
     always 
     begin
@@ -235,9 +194,9 @@ module Project1Test();
     always @(posedge Clock)
     begin
         #1; 
-        {Operation, RF_OutASel, RF_OutBSel, RF_FunSel, 
-        RF_RegSel, ALU_FunSel, ARF_OutCSel, ARF_OutDSel, 
-        ARF_FunSel, ARF_RegSel, IR_LH, IR_Enable, IR_Funsel, 
+        {Operation, RF_O1Sel, RF_O2Sel, RF_FunSel, 
+        RF_RSel, RF_TSel, ALU_FunSel, ARF_OutASel, ARF_OutBSel, 
+        ARF_FunSel, ARF_RSel, IR_LH, IR_Enable, IR_Funsel, 
         Mem_WR, Mem_CS, MuxASel, MuxBSel, MuxCSel} = TestVectors[VectorNum];
     end
     
@@ -247,25 +206,25 @@ module Project1Test();
         begin
             $display("Input Values:");
             $display("Operation: %d", Operation);
-            $display("Register File: OutASel: %d, OutBSel: %d, FunSel: %d, Regsel: %d", RF_OutASel, RF_OutBSel, RF_FunSel, RF_RegSel);            
+            $display("Register File: O1Sel: %d, O2Sel: %d, FunSel: %d, RSel: %d, TSel: %d", RF_O1Sel, RF_O2Sel, RF_FunSel, RF_RSel, RF_TSel);            
             $display("ALU FunSel: %d", ALU_FunSel);
-            $display("Addres Register File: OutCSel: %d, OutDSel: %d, FunSel: %d, Regsel: %d", ARF_OutCSel, ARF_OutDSel, ARF_FunSel, ARF_RegSel);            
+            $display("Addres Register File: OutASel: %d, OutBSel: %d, FunSel: %d, Regsel: %d", ARF_OutASel, ARF_OutBSel, ARF_FunSel, ARF_RSel);            
             $display("Instruction Register: LH: %d, Enable: %d, FunSel: %d", IR_LH, IR_Enable, IR_Funsel);            
             $display("Memory: WR: %d, CS: %d", Mem_WR, Mem_CS);
             $display("MuxASel: %d, MuxBSel: %d, MuxCSel: %d", MuxASel, MuxBSel, MuxCSel);
             
             $display("");
-            $display("Ouput Values:");
+            $display("Output Values:");
             $display("Register File: AOut: %d, BOut: %d", _ALUSystem.AOut, _ALUSystem.BOut);            
             $display("ALUOut: %d, ALUOutFlag: %d, ALUOutFlags: Z:%d, C:%d, N:%d, O:%d,", _ALUSystem.ALUOut, _ALUSystem.ALUOutFlag, _ALUSystem.ALUOutFlag[3],_ALUSystem.ALUOutFlag[2],_ALUSystem.ALUOutFlag[1],_ALUSystem.ALUOutFlag[0]);
-            $display("Address Register File: COut: %d, DOut (Address): %d", _ALUSystem.ARF_COut, _ALUSystem.Address);            
+            $display("Address Register File: AOut: %d, BOut (Address): %d", _ALUSystem.AOut, _ALUSystem.Address);            
             $display("Memory Out: %d", _ALUSystem.MemoryOut);            
             $display("Instruction Register: IROut: %d", _ALUSystem.IROut);            
             $display("MuxAOut: %d, MuxBOut: %d, MuxCOut: %d", _ALUSystem.MuxAOut, _ALUSystem.MuxBOut, _ALUSystem.MuxCOut);
-            $display("");
+            
             // increment array index and read next testvector
             VectorNum = VectorNum + 1;
-            if (TestVectors[VectorNum] === 35'bx)
+            if (TestVectors[VectorNum] === 42'bx)
             begin
                 $display("%d tests completed.",
                 VectorNum);
@@ -273,5 +232,3 @@ module Project1Test();
             end
         end
 endmodule
-
-     
