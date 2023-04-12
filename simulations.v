@@ -162,7 +162,8 @@ module ALU_test();
     initial
     begin
         #5
-        Input = 8'b10101010;
+        A = 8'b01010101;
+        B = 8'b01010101;
         CLK = 0;
         for(a=0; a < 256; a=a+1)
         begin
