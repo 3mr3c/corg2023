@@ -1,3 +1,5 @@
+`timescale 1ns / 1ps
+
 // PART 1
 
 module n_bitRegister #(parameter N = 8) (
@@ -170,15 +172,15 @@ module ARF (
     wire [7:0] PC_Q;
     wire [7:0] AR_Q;
     wire [7:0] SP_Q;
-    wire [7:0] PC_PREV_Q;
+   
     
     n_bitRegister #(.N(8)) PC(.CLK(CLK),.E(~RegSel[0]), .FunSel(FunSel), .I(I), .Q(PC_Q));
     n_bitRegister #(.N(8)) AR(.CLK(CLK),.E(~RegSel[1]), .FunSel(FunSel), .I(I), .Q(AR_Q));
     n_bitRegister #(.N(8)) SP(.CLK(CLK),.E(~RegSel[2]), .FunSel(FunSel), .I(I), .Q(SP_Q));
-    n_bitRegister #(.N(8)) PCPAST(.CLK(CLK),.E(~RegSel[0]), .FunSel(FunSel), .I(I), .Q(PC_PREV_Q));
+    
 
 
-    reg [7:0] OutA_temp, OutB_temp;
+    reg [7:0] OutA_temp, OutB_temp, PC_PREV_Q;
     assign OutA = OutA_temp;
     assign OutB = OutB_temp;
 
@@ -283,7 +285,7 @@ module ALU (
             enable_o <= 0;
         end
         4'b1001: begin
-            ALU_result <= A ~& B;
+            ALU_result <= ~(A & B);
             enable_o <= 0;
         end
         4'b1010: begin
@@ -355,7 +357,7 @@ module Memory(
     input wire clock,
     output reg[7:0] o // Output
 );
-    //Declaration o�f the RAM Area
+    //Declaration o?f the RAM Area
     reg[7:0] RAM_DATA[0:255];
     //Read Ram data from the file
     initial $readmemh("RAM.mem", RAM_DATA);
@@ -411,8 +413,8 @@ module ALUSystem
 
     ARF arf1(.OutASel(ARF_OutASel), .OutBSel(ARF_OutBSel), .FunSel(ARF_FunSel), .RegSel(ARF_RegSel), .I(MuxBOut) , .OutA(ARF_AOut), .OutB(Address), .CLK(Clock));
 
-    always @(MuxBSel) begin
-        case (MuxBSel)
+    always @(MuxSelB) begin
+        case (MuxSelB)
             2'b00: begin
                 MuxBOut <= ALUOut;
             end
@@ -436,8 +438,8 @@ module ALUSystem
 
     reg [7:0] MuxAOut;
 
-    always @(MuxASel) begin
-        case (MuxASel)
+    always @(MuxSelA) begin
+        case (MuxSelA)
             2'b00: begin
                 MuxAOut = ALUOut;
             end
@@ -469,9 +471,4 @@ module ALUSystem
     ALU alu1(.FunSel(ALU_FunSel), .A(MuxCOut), .B(Out2), .OutALU(ALUOut), .OutFlag(ALUOutFlag), .CLK(Clock));
 
 endmodule
-
-
-
-
-
 
