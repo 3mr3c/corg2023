@@ -1,4 +1,24 @@
 `timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 12.04.2023 18:32:32
+// Design Name: 
+// Module Name: simulation
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
 
 //PART 1
 
@@ -89,7 +109,7 @@ module RegFile_Test();
     wire [7:0] Output2;
     
     integer a,j,k;
-    RegFile file(.O1Sel(Out1Select),.O2Sel(Out2Select),.FunSel(FunSelect),.RegSel(RSelect),.TSel(TSelect),.I(Input),.CLK(CLK),.O1(Output1),.O2(Output2));
+    RegFile file(.O1Sel(Out1Select),.O2Sel(Out2Select),.FunSel(FunSelect),.RSel(RSelect),.TSel(TSelect),.I(Input),.CLK(CLK),.O1(Output1),.O2(Output2));
     always #1 CLK = ~CLK;
     
      initial begin
@@ -220,14 +240,14 @@ module Project1Test();
     
     //Test Bench Connection of ALU System
     ALU_System _ALUSystem(
-    .RF_OutASel(RF_O1Sel), 
-    .RF_OutBSel(RF_O2Sel), 
+    .RF_O1Sel(RF_O1Sel), 
+    .RF_O2Sel(RF_O2Sel), 
     .RF_FunSel(RF_FunSel),
-    .RF_RSel(RF_RSel),
+    .RF_RegSel(RF_RSel),
     .RF_TSel(RF_TSel),
     .ALU_FunSel(ALU_FunSel),
-    .ARF_OutCSel(ARF_OutASel), 
-    .ARF_OutDSel(ARF_OutBSel), 
+    .ARF_OutASel(ARF_OutASel), 
+    .ARF_OutBSel(ARF_OutBSel), 
     .ARF_FunSel(ARF_FunSel),
     .ARF_RegSel(ARF_RSel),
     .IR_LH(IR_LH),
@@ -235,8 +255,8 @@ module Project1Test();
     .IR_Funsel(IR_Funsel),
     .Mem_WR(Mem_WR),
     .Mem_CS(Mem_CS),
-    .MuxASel(MuxASel),
-    .MuxBSel(MuxBSel),
+    .MuxSelA(MuxASel),
+    .MuxSelB(MuxBSel),
     .MuxCSel(MuxCSel),
     .Clock(Clock)
     );
@@ -285,9 +305,9 @@ module Project1Test();
             
             $display("");
             $display("Output Values:");
-            $display("Register File: AOut: %d, BOut: %d", _ALUSystem.AOut, _ALUSystem.BOut);            
+            $display("Register File: AOut: %d, BOut: %d", _ALUSystem.Out1, _ALUSystem.Out2);            
             $display("ALUOut: %d, ALUOutFlag: %d, ALUOutFlags: Z:%d, C:%d, N:%d, O:%d,", _ALUSystem.ALUOut, _ALUSystem.ALUOutFlag, _ALUSystem.ALUOutFlag[3],_ALUSystem.ALUOutFlag[2],_ALUSystem.ALUOutFlag[1],_ALUSystem.ALUOutFlag[0]);
-            $display("Address Register File: AOut: %d, BOut (Address): %d", _ALUSystem.AOut, _ALUSystem.Address);            
+            $display("Address Register File: AOut: %d, BOut (Address): %d", _ALUSystem.Out1, _ALUSystem.Address);            
             $display("Memory Out: %d", _ALUSystem.MemoryOut);            
             $display("Instruction Register: IROut: %d", _ALUSystem.IROut);            
             $display("MuxAOut: %d, MuxBOut: %d, MuxCOut: %d", _ALUSystem.MuxAOut, _ALUSystem.MuxBOut, _ALUSystem.MuxCOut);
