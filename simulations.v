@@ -196,6 +196,8 @@ module ALU_test();
     end
 endmodule
 
+`timescale 1ns / 1ps
+
 module Project1Test();
     //Input Registers of ALUSystem
     reg[2:0] RF_O1Sel; 
@@ -219,27 +221,27 @@ module Project1Test();
     reg      Clock;
     
     //Test Bench Connection of ALU System
-    ALU_System _ALUSystem(
-    .RF_OutASel(RF_O1Sel), 
-    .RF_OutBSel(RF_O2Sel), 
-    .RF_FunSel(RF_FunSel),
-    .RF_RSel(RF_RSel),
-    .RF_TSel(RF_TSel),
-    .ALU_FunSel(ALU_FunSel),
-    .ARF_OutCSel(ARF_OutASel), 
-    .ARF_OutDSel(ARF_OutBSel), 
-    .ARF_FunSel(ARF_FunSel),
-    .ARF_RegSel(ARF_RSel),
-    .IR_LH(IR_LH),
-    .IR_Enable(IR_Enable),
-    .IR_Funsel(IR_Funsel),
-    .Mem_WR(Mem_WR),
-    .Mem_CS(Mem_CS),
-    .MuxASel(MuxASel),
-    .MuxBSel(MuxBSel),
-    .MuxCSel(MuxCSel),
-    .Clock(Clock)
-    );
+    ALUSystem _ALUSystem(
+        .RF_O1Sel(RF_O1Sel), 
+        .RF_O2Sel(RF_O2Sel), 
+        .RF_FunSel(RF_FunSel),
+        .RF_RSel(RF_RSel),
+        .RF_TSel(RF_TSel),
+        .ALU_FunSel(ALU_FunSel),
+        .ARF_OutASel(ARF_OutASel), 
+        .ARF_OutBSel(ARF_OutBSel), 
+        .ARF_FunSel(ARF_FunSel),
+        .ARF_RegSel(ARF_RSel),
+        .IR_LH(IR_LH),
+        .IR_Enable(IR_Enable),
+        .IR_Funsel(IR_Funsel),
+        .Mem_WR(Mem_WR),
+        .Mem_CS(Mem_CS),
+        .MuxASel(MuxASel),
+        .MuxBSel(MuxBSel),
+        .MuxCSel(MuxCSel),
+        .Clock(Clock)
+        );
     
     //Test Vector Variables
     reg [41:0] VectorNum, Errors, TotalLine; 
@@ -303,3 +305,34 @@ module Project1Test();
         end
 endmodule
 
+module Project2Test();
+    reg Clock, Reset;
+    reg [7:0] T;
+    always 
+    begin
+        Clock = 1; #5; Clock = 0; #5; // 10ns period
+    end
+    CPUSystem _CPUSystem( 
+            .Clock(Clock),
+            .Reset(Reset),
+            .T(T)    
+        );
+endmodule
+
+module top_test();
+  reg Clock;
+  reg reset;
+
+      top_system top( Clock, reset);
+      always begin
+         #10; Clock = ~Clock;
+      end
+      initial begin 
+
+         Clock = 1;
+          reset = 1; #101;
+         reset = 0; #100;
+
+         #2 $finish;
+     end
+endmodule
