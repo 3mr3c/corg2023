@@ -526,7 +526,7 @@ output
                 end else begin
                     MuxASel <= 2'b00;
                 end
-                //MuxASel = AddressMode ? 2'b00 : 2'b01;
+                
                 case("`RSel") 
                     2'b00: RF_RSel <= 4'b1000;
                     2'b01: RF_RSel <= 4'b0100;
