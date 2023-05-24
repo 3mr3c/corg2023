@@ -209,7 +209,7 @@ module Project1Test();
     reg[1:0] ARF_OutASel; 
     reg[1:0] ARF_OutBSel; 
     reg[1:0] ARF_FunSel;
-    reg[3:0] ARF_RSel;
+    reg[3:0] ARF_RegSel;
     reg      IR_LH;
     reg      IR_Enable;
     reg[1:0]      IR_Funsel;
@@ -224,14 +224,14 @@ module Project1Test();
     ALUSystem _ALUSystem(
         .RF_O1Sel(RF_O1Sel), 
         .RF_O2Sel(RF_O2Sel), 
-        .RF_FunSel(RF_FunSel),
-        .RF_RSel(RF_RSel),
+        .RF_FunSel(RF_FunSel),                                                  
+        .RF_RSel(RF_RSel),  
         .RF_TSel(RF_TSel),
         .ALU_FunSel(ALU_FunSel),
         .ARF_OutASel(ARF_OutASel), 
         .ARF_OutBSel(ARF_OutBSel), 
         .ARF_FunSel(ARF_FunSel),
-        .ARF_RegSel(ARF_RSel),
+        .ARF_RegSel(ARF_RegSel),
         .IR_LH(IR_LH),
         .IR_Enable(IR_Enable),
         .IR_Funsel(IR_Funsel),
@@ -268,7 +268,7 @@ module Project1Test();
         #1; 
         {Operation, RF_O1Sel, RF_O2Sel, RF_FunSel, 
         RF_RSel, RF_TSel, ALU_FunSel, ARF_OutASel, ARF_OutBSel, 
-        ARF_FunSel, ARF_RSel, IR_LH, IR_Enable, IR_Funsel, 
+        ARF_FunSel, ARF_RegSel, IR_LH, IR_Enable, IR_Funsel, 
         Mem_WR, Mem_CS, MuxASel, MuxBSel, MuxCSel} = TestVectors[VectorNum];
     end
     
@@ -280,7 +280,7 @@ module Project1Test();
             $display("Operation: %d", Operation);
             $display("Register File: O1Sel: %d, O2Sel: %d, FunSel: %d, RSel: %d, TSel: %d", RF_O1Sel, RF_O2Sel, RF_FunSel, RF_RSel, RF_TSel);            
             $display("ALU FunSel: %d", ALU_FunSel);
-            $display("Addres Register File: OutASel: %d, OutBSel: %d, FunSel: %d, Regsel: %d", ARF_OutASel, ARF_OutBSel, ARF_FunSel, ARF_RSel);            
+            $display("Addres Register File: OutASel: %d, OutBSel: %d, FunSel: %d, Regsel: %d", ARF_OutASel, ARF_OutBSel, ARF_FunSel, ARF_RegSel);            
             $display("Instruction Register: LH: %d, Enable: %d, FunSel: %d", IR_LH, IR_Enable, IR_Funsel);            
             $display("Memory: WR: %d, CS: %d", Mem_WR, Mem_CS);
             $display("MuxASel: %d, MuxBSel: %d, MuxCSel: %d", MuxASel, MuxBSel, MuxCSel);
