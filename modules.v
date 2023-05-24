@@ -443,18 +443,19 @@ output
         Mem_WR <= 0;
         IR_Enable <= 1; 
         IR_Funsel <= 2'b01; 
-        IR_LH <= LH;
+        IR_LH <= 1;
     end
 
     if(SeqCounter == 1) begin
         ARF_OutBSel <= 2'b00;
-        ARF_RegSel <= 3'b011
+        ARF_RegSel <= 3'b011;
+        ARF_RegSel <= 3'b011;
         ARF_FunSel <= 2'b11; //increment 
         Mem_CS <= 0;
         Mem_WR <= 0;
         IR_Enable <= 1;
         IR_Funsel <= 2'b01;
-        IR_LH <= LH;
+        IR_LH <= 0;
     end
 
     //Decode
@@ -467,7 +468,7 @@ output
             Dstreg <= ir_15_8[3:0];
             SREG2 <= ir_7_0[3:0];
             SREG1 <= ir_7_0[7:4];
-        en
+        end
         
     end
 
@@ -525,7 +526,7 @@ output
                     MuxASel <= 2'b00;
                 end
                 //MuxASel = AddressMode ? 2'b00 : 2'b01;
-                case("`RSel") \
+                case("`RSel") 
                     2'b00: RF_RegSel <= 4'b1000;
                     2'b01: RF_RegSel <= 4'b0100;
                     2'b10: RF_RegSel <= 4'b0010;
@@ -698,7 +699,7 @@ endmodule
 
 
 module ALU_System
-( input [2:0] RF_OutASel, [2:0] RF_OutBSel, [1:0] RF_FunSel, [3:0] RF_RSel, [3:0] RF_TSel, [3:0] ALU_FunSel, [1:0] ARF_OutASel,
+( input [2:0] RF_O1Sel, [2:0] RF_O2Sel, [1:0] RF_FunSel, [3:0] RF_RSel, [3:0] RF_TSel, [3:0] ALU_FunSel, [1:0] ARF_OutASel,
   input [1:0] ARF_OutBSel, [1:0] ARF_FunSel, [3:0] ARF_RegSel, IR_LH, IR_Enable, [1:0] IR_Funsel, Mem_WR, Mem_CS,
   input [1:0] MuxASel, [1:0] MuxBSel, MuxCSel, Clock
 );
@@ -756,7 +757,7 @@ module ALU_System
     end
 
     wire [7:0] AOut, BOut;
-    RegFile rf1(.O1Sel(RF_OutASel), .O2Sel(RF_OutBSel), .FunSel(RF_FunSel), .RSel(RF_RSel), .TSel(RF_TSel),  .I(MuxAOut), .O1(AOut), .O2(BOut),.CLK(Clock));
+    RegFile rf1(.O1Sel(RF_O1Sel), .O2Sel(RF_O2Sel), .FunSel(RF_FunSel), .RSel(RF_RSel), .TSel(RF_TSel),  .I(MuxAOut), .O1(AOut), .O2(BOut),.CLK(Clock));
 
     reg [7:0] MuxCOut;
     always @(MuxCSel) begin
@@ -771,4 +772,3 @@ module ALU_System
     ALU alu1(.FunSel(ALU_FunSel), .A(MuxCOut), .B(BOut), .OutALU(ALUOut), .OutFlag(ALUOutFlag), .CLK(Clock));
 
 endmodule
-
