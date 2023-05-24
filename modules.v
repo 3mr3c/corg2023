@@ -382,10 +382,11 @@ input [3:0] ALU_OutFlag,
 input clk,
 input reset,
 output 
-    reg [1:0] RF_OutASel, 
-    reg [1:0] RF_OutBSel, 
+    reg [1:0] RF_O1Sel, 
+    reg [1:0] RF_O2Sel, 
     reg [1:0] RF_FunSel,
-    reg [3:0] RF_RegSel,
+    reg [3:0] RF_RSel,
+    reg [3:0] RF_TSel,
     reg [3:0] ALU_FunSel,
     reg [1:0] ARF_OutASel, 
     reg [1:0] ARF_OutBSel, 
@@ -428,7 +429,7 @@ output
         if(ProgCounter == 16'hFFFF || reset ==1) begin
             ARF_RegSel <= 3'b000;
             ARF_FunSel <= 2'b11;
-            RF_RegSel <= 4'b0000;
+            RF_RSel <= 4'b0000;
             RF_FunSel <= 2'b00; //clear
         end
     end
@@ -527,14 +528,14 @@ output
                 end
                 //MuxASel = AddressMode ? 2'b00 : 2'b01;
                 case("`RSel") 
-                    2'b00: RF_RegSel <= 4'b1000;
-                    2'b01: RF_RegSel <= 4'b0100;
-                    2'b10: RF_RegSel <= 4'b0010;
-                    2'b11: RF_RegSel <= 4'b0001;
+                    2'b00: RF_RSel <= 4'b1000;
+                    2'b01: RF_RSel <= 4'b0100;
+                    2'b10: RF_RSel <= 4'b0010;
+                    2'b11: RF_RSel <= 4'b0001;
                 endcase
             end
             4'h0D:begin //ST
-                RF_OutBSel <= RSel;
+                RF_O2Sel <= RSel;
                 ALU_FunSel <= 4'b0001; //pass B
                 Mem_CS <= 0;
                 Mem_WR <= 1;
@@ -545,10 +546,10 @@ output
                 Mem_WR <= 1;
                 MuxASel <= 2'b01;
                 case("`RSel") 
-                    2'b00: RF_RegSel <= 4'b1000;
-                    2'b01: RF_RegSel <= 4'b0100;
-                    2'b10: RF_RegSel <= 4'b0010;
-                    2'b11: RF_RegSel <= 4'b0001; 
+                    2'b00: RF_RSel <= 4'b1000;
+                    2'b01: RF_RSel <= 4'b0100;
+                    2'b10: RF_RSel <= 4'b0010;
+                    2'b11: RF_RSel <= 4'b0001; 
                 endcase
             end
             4'h0F:begin //PSH
@@ -585,16 +586,16 @@ output
             
             case(Dstreg)
             4'b0000:begin
-                RF_RegSel <= 4'b0111;
+                RF_RSel <= 4'b0111;
                 end
             4'b0001:begin
-                RF_RegSel <= 4'b1011;
+                RF_RSel <= 4'b1011;
                 end
             4'b0010:begin
-                RF_RegSel <= 4'b1101;
+                RF_RSel <= 4'b1101;
                 end
             4'b0011:begin
-                RF_RegSel <= 4'b1110;
+                RF_RSel <= 4'b1110;
                 end
             4'b0100:begin
                 ARF_RegSel <= 3'b110;
@@ -613,16 +614,16 @@ output
             
             case(SREG1)
              4'b0000:begin
-                RF_RegSel <= 4'b0111;
+                RF_RSel <= 4'b0111;
                 end
             4'b0001:begin
-                RF_RegSel <= 4'b1011;
+                RF_RSel <= 4'b1011;
                 end
             4'b0010:begin
-                RF_RegSel <= 4'b1101;
+                RF_RSel <= 4'b1101;
                 end
             4'b0011:begin
-                RF_RegSel <= 4'b1110;
+                RF_RSel <= 4'b1110;
                 end
             4'b0100:begin
                 ARF_RegSel <= 3'b110;
@@ -641,16 +642,16 @@ output
 
             case (SREG2)
             4'b0000:begin
-                RF_RegSel <= 4'b0111;
+                RF_RSel <= 4'b0111;
                 end
             4'b0001:begin
-                RF_RegSel <= 4'b1011;
+                RF_RSel <= 4'b1011;
                 end
             4'b0010:begin
-                RF_RegSel <= 4'b1101;
+                RF_RSel <= 4'b1101;
                 end
             4'b0011:begin
-                RF_RegSel <= 4'b1110;
+                RF_RSel <= 4'b1110;
                 end
             4'b0100:begin
                 ARF_RegSel <= 3'b110;
@@ -678,7 +679,7 @@ output
                 ARF_FunSel <= 2'b01; //increment 
                 end
             4'h0C:begin //PSH
-                RF_OutBSel <= RSel;
+                RF_O2Sel <= RSel;
                 ALU_FunSel <= 4'b0001; //pass B
                 ARF_OutBSel <= 2'b11;
                 Mem_CS <= 0; 
@@ -699,9 +700,26 @@ endmodule
 
 
 module ALU_System
-( input [2:0] RF_O1Sel, [2:0] RF_O2Sel, [1:0] RF_FunSel, [3:0] RF_RSel, [3:0] RF_TSel, [3:0] ALU_FunSel, [1:0] ARF_OutASel,
-  input [1:0] ARF_OutBSel, [1:0] ARF_FunSel, [3:0] ARF_RegSel, IR_LH, IR_Enable, [1:0] IR_Funsel, Mem_WR, Mem_CS,
-  input [1:0] MuxASel, [1:0] MuxBSel, MuxCSel, Clock
+( input
+    [2:0] RF_O1Sel, 
+    [2:0] RF_O2Sel, 
+    [1:0] RF_FunSel, 
+    [3:0] RF_RSel, 
+    [3:0] RF_TSel, 
+    [3:0] ALU_FunSel, 
+    [1:0] ARF_OutASel,
+    [1:0] ARF_OutBSel, 
+    [1:0] ARF_FunSel, 
+    [3:0] ARF_RegSel,
+    IR_LH, 
+    IR_Enable, 
+    [1:0] IR_Funsel, 
+    Mem_WR, 
+    Mem_CS,
+    [1:0] MuxASel, 
+    [1:0] MuxBSel, 
+    MuxCSel, 
+    Clock
 );
     wire [7:0] ALUOut;
     wire [7:0] Address;
@@ -735,7 +753,7 @@ module ALU_System
 
     assign IR_Out_LSB = IROut[7:0];
 
-    IR ir1(.LH(IR_LH), .En(IR_Enable), .FunSel(IR_Funsel), .IRout(IROut), .CLK(Clock));
+    IR ir1(.LH(IR_LH), .En(IR_Enable), .FunSel(IR_Funsel), I(MemoryOut),.IRout(IROut), .CLK(Clock));
 
     reg [7:0] MuxAOut;
 
@@ -771,4 +789,77 @@ module ALU_System
     wire [3:0] ALUOutFlag;
     ALU alu1(.FunSel(ALU_FunSel), .A(MuxCOut), .B(BOut), .OutALU(ALUOut), .OutFlag(ALUOutFlag), .CLK(Clock));
 
+endmodule
+
+module top_system( input Clock, input reset);
+    wire [1:0] RF_O1Sel; 
+    wire [1:0] RF_O2Sel;
+    wire [1:0] RF_FunSel;
+    wire [3:0] RF_RSel;
+    wire [3:0] RF_TSel;
+    wire [3:0] ALU_FunSel;
+    wire [1:0] ARF_OutASel; 
+    wire [1:0] ARF_OutBSel; 
+    wire [1:0] ARF_FunSel;
+    wire [2:0] ARF_RegSel;
+    wire IR_LH;
+    wire IR_Enable;
+    wire [1:0] IR_Funsel;
+    wire Mem_WR;
+    wire Mem_CS;
+    wire [1:0] MuxASel;
+    wire [1:0] MuxBSel;
+    wire MuxCSel;
+    wire [15:0] IROut;
+    wire [3:0] ALUOutFlag;
+control_unit cpu(
+.ir_15_8(IROut[15:8]),
+.ir_7_0(IROut[7:0]),
+.ALU_OutFlag(ALUOutFlag),
+.clk(Clock),
+.RF_O1Sel(RF_O1Sel), 
+.RF_O2Sel(RF_O2Sel), 
+.RF_FunSel(RF_FunSel),
+.RF_RSel(RF_RSel),
+.RF_TSel(RF_TSel),
+.ALU_FunSel(ALU_FunSel),
+.ARF_OutASel(ARF_OutASel), 
+.ARF_OutBSel(ARF_OutBSel), 
+.ARF_FunSel(ARF_FunSel),
+.ARF_RegSel(ARF_RegSel),
+.IR_LH(IR_LH),
+.IR_Enable(IR_Enable),
+.IR_Funsel(IR_Funsel),
+.Mem_WR(Mem_WR),
+.Mem_CS(Mem_CS),
+.MuxASel(MuxASel),
+.MuxBSel(MuxBSel),
+.MuxCSel(MuxCSel),
+.reset(reset)
+);
+
+ALUSystem ALU
+( 
+    .RF_O1Sel(RF_O1Sel),
+    .RF_O2Sel(RF_O2Sel), 
+    .RF_FunSel(RF_FunSel),  
+    .RF_RSel(RF_RSel),
+    .RF_TSel(RF_TSel),  
+    .ALU_FunSel(ALU_FunSel),
+    .ALUOutFlag(ALUOutFlag), 
+    .ARF_OutASel(ARF_OutASel), 
+    .ARF_OutBSel(ARF_OutBSel), 
+    .ARF_FunSel(ARF_FunSel),
+    .ARF_RegSel(ARF_RegSel),
+    .IR_LH(IR_LH),
+    .IR_Enable(IR_Enable),
+    .IR_Funsel(IR_Funsel),
+    .Mem_WR(Mem_WR),
+    .Mem_CS(Mem_CS),
+    .MuxASel(MuxASel),
+    .MuxBSel(MuxBSel),
+    .MuxCSel(MuxCSel),
+    .Clock(Clock),
+    .IROut(IROut)
+    );
 endmodule
